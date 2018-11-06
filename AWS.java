@@ -9,8 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-
-import ilog.concert.IloConversion;
 import ilog.concert.IloException;
 import ilog.concert.IloIntVar;
 import ilog.concert.IloLinearIntExpr;
@@ -22,7 +20,7 @@ import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import ilog.cplex.IloCplexModeler;
 
-public class AWS_V19
+public class AWS
 {
 	public static void main(String[] args) throws IOException {
 
@@ -170,10 +168,9 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 		try {
 			// define new model
 			IloCplex cplex = new IloCplex();
-				
+
 			// Defining variable X
-			
-			IloNumVar[][][] x = new IloNumVar[numberOfTasks][][];
+			IloIntVar[][][] x = new IloIntVar[numberOfTasks][][];
 			// loop for each task
 			for (int j = 0; j < numberOfTasks; j++) {
 				x[j] = new IloIntVar[(int) (Tmax + 1)][];
@@ -183,8 +180,8 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 					// loop for each host
 					for (int k = lowerBoundK; k < upperBoundK; k++) {
 						String label = "x[" + j + "," + t + "," + k + "]";
-						// System.out.println(label);	
-						x[j][t][k] = cplex.numVar(0, 1, label);
+						// System.out.println(label);
+						x[j][t][k] = cplex.intVar(0, 1, label);
 					}
 				}
 			}	
@@ -213,7 +210,7 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 			for (int j = 0; j < numberOfTasks; j++) {			 
 
 				// Create expression D1				
-				IloLinearNumExpr expressionD1 = cplex.linearNumExpr();		
+				IloLinearIntExpr expressionD1 = cplex.linearIntExpr();		
 				for (int t = 0; t <= Tmax; t++) {
 					for (int k = lowerBoundK; k < upperBoundK; k++) {											 
 						expressionD1.addTerm(x[j][t][k], 1);
@@ -236,7 +233,7 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 					
 				  // Create expressionD2
 					double processingTimejk = instructionsTasks[j] * timePerInstructionHosts[k];
-					IloLinearNumExpr expressionD2 = cplex.linearNumExpr();
+					IloLinearIntExpr expressionD2 = cplex.linearIntExpr();
 					for (int t = 0; t <= Tmax; t++) {							
 						double propagationtimejk = diskTasks[j]*timeToTransmitBitHosts[0][k];		
 						double sumTPropagationtimejkProcessingTimejk = (t+propagationtimejk+processingTimejk);			
@@ -256,7 +253,7 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 			for (int t = 0; t <= Tmax; t++) {	
 
 				// Create expression D3
-				IloLinearNumExpr expressionD3 = cplex.linearNumExpr();	
+				IloLinearIntExpr expressionD3 = cplex.linearIntExpr();	
 				for (int j = 0; j < numberOfTasks; j++) {
 					double processingTimejk = instructionsTasks[j] * timePerInstructionHosts[k];	
 					for (int s = t; s <= t+processingTimejk-1; s++) {
@@ -285,14 +282,14 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 						for (int t = 0; t <= Tmax; t++) {	
 
 							//left			
-							IloLinearNumExpr expressionRight = cplex.linearNumExpr();
+							IloLinearIntExpr expressionRight = cplex.linearIntExpr();	
 							double propagationtimejk = diskTasks[j]*timeToTransmitBitHosts[0][k];	
 							for (int s = 0; s <= t; s++) {	
 								expressionRight.addTerm(x[j][s][k], 1);	
 							}
 
 							//right	
-							IloLinearNumExpr expressionLeft = cplex.linearNumExpr();
+							IloLinearIntExpr expressionLeft = cplex.linearIntExpr();
 							for (int h = lowerBoundK; h < upperBoundK; h++) {
 								if ((timeToTransmitBitHosts[h][k]) != 0) {
 									
@@ -314,28 +311,24 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 				}	
 			}
 		}
-		
+			
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-// ========================================= Relaxation =======================================================================================
-//		IloNumVar x = cplex.numVar(0.0, 1.0);
-//		cplex.add(cplex.conversion(x, IloNumVarType.Int));
-		
-		// To modify the model, add the conversion object to the model
-		//cplex.add(cplex.conversion(x, IloNumVarType.Float));
-		
-		
-		for (int j = 0; j < numberOfTasks; j++) {
-			
-			// loop for each time slot					
-			for (int t = 0; t <= Tmax; t++) {
-			
-				// loop for each host
-				for (int k = lowerBoundK; k < upperBoundK; k++) {
-					cplex.add(cplex.conversion(x[j][t][k], IloNumVarType.Float));
-				}
-			}
-		}	
-		
+//		// Defining expression D5
+//		// For all...						
+//		for (int j = 0; j < numberOfTasks; j++) {	
+//			for (int k = lowerBoundK; k < upperBoundK; k++) {	
+//				double propagationjk = diskTasks[j]*timeToTransmitBitHosts[0][k];
+//				for (int t = 0; t <= propagationjk; t++) {
+//					IloLinearIntExpr expressionD5 = cplex.linearIntExpr();										
+//					expressionD5.addTerm(x[j][t][k], 1);
+//					//System.out.println("expressionD5= " + expressionD5);
+//					cplex.addEq(expressionD5, 0);	
+//				}	
+//			}	
+//		}		
+//
+//// cplex.setParam(IloCplex.Param.Simplex.Display, 1);				
 
 // ========================================= Solve model =======================================================================================
 
@@ -353,8 +346,7 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
 				for (int j = 0; j < numberOfTasks; j++) {
 					for (int t = 0; t <= Tmax; t++) {
 						for (int k = lowerBoundK; k < upperBoundK; k++) {
-							
-							if ((cplex.getValue(x[j][t][k])) >= 10e-6) {
+							if ((cplex.getValue(x[j][t][k])) == 1.0) {
 								escribirSalida.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));										
 								System.out.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));										
 
