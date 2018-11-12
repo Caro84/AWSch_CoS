@@ -2,7 +2,7 @@
 //Resolvendo a relaxação da variavel inteira
 // So tem 1 aplicacao sendo executada na rede
 
-// v.0.20
+// v.0.21 Integer solution corrected
 
 
 package samplesCPLEX;
@@ -30,18 +30,17 @@ public class AWS
 
 		int numberOfTasks = 3; 																										 					 // Number of task that make up the application
 		int numberOfHosts = 13; 																										 				 // Processing host of the network. Fog 1, fog 2, Isolated node, and Cloud		
-		int CoS = 7; 																															 				 // Class of Service of the Fog Application
+		int CoS = 6; 																															 				   // Class of Service of the Fog Application
 		
-	// double[] timePerInstructionHosts = {20, 20, 20, 20, 40, 40, 40, 20, 20, 20, 10, 10, 10}; // Expressed as (instructions/unit_time)^-1
-		double[] timePerInstructionHosts = {2, 2, 2, 2, 4, 4, 4, 2, 2, 2, 1, 1, 1}; // Expressed as (instructions/unit_time)^-1
+    double[] timePerInstructionHosts = {2, 2, 2, 2, 4, 4, 4, 2, 2, 2, 1, 1, 1}; // Expressed as (instructions/unit_time)^-1
 		double[] ramHosts = {8000, 8000, 8000, 8000, 4000, 4000, 4000, 8000, 8000, 8000, 16000, 16000, 16000}; 				                 	 						// RAM in MB
 		double[] diskHosts = {80000, 80000, 80000, 80000, 40000, 40000, 40000, 80000, 80000, 80000, 160000, 160000, 160000}; 		 								 						// Disk space in MB
-		double[] instructionsTasks = {2, 2, 2}; 					        							 						// Instructions to be process in each task I{j} in MIPS
-		double[] ramTasks = {512, 512, 512}; 																		 					// Amount of RAM required by each task M{j} in MB
-		double[] diskTasks = {2, 2, 2}; 									                 						      // Disk space required by each task D{j} in MB
+		double[] instructionsTasks = {1, 2, 3}; 					        							 						// Instructions to be process in each task I{j} in MIPS
+		double[] ramTasks = {21, 62, 53}; 																		 					    // Amount of RAM required by each task M{j} in MB
+		double[] diskTasks = {12, 33, 27}; 									                 						    // Disk space required by each task D{j} in MB
 			
                                      // j0 j1 j2
-		double[][] bytesTransferredTasks = {{0, 5, 0},  // j0
+		double[][] bytesTransferredTasks = {{0, 7, 0},  // j0
                                         {0, 0, 5},  // j1
                                         {0, 0, 0}}; // j2 		
 
@@ -51,20 +50,19 @@ double[][] timeToTransmitBitHosts = {{0,  2,  5,  5,  2,  5,  5,  7,  4,  7,  9,
        															 {2,  0,  3,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0},// h1 
                                      {5,  3,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0},// h2
                                      {5,  3,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},// h3
-                                     {2,  0,  0,  0,  0,  3,  3,  5,  8,  8, 10, 13, 13},// h4
-                                     {5,  0,  0,  0,  3,  0,  3,  5,  8,  8, 10, 13, 13},// h5
-                                     {5,  0,  0,  0,  3,  3,  0,  2,  5,  5,  7, 10, 10},// h6
-                                     {7,  0,  0,  0,  5,  5,  2,  0,  3,  3,  5,  8,  8},// h7
-                                     {4,  0,  0,  0,  8,  8,  5,  3,  0,  3,  5,  8,  8},// h8
-                                     {7,  0,  0,  0,  8,  8,  5,  3,  3,  0,  2,  5,  5},// h9
-                                     {9,  0,  0,  0, 10, 10,  7,  5,  5,  2,  0,  3,  3},// h10
-		                                 {6,  0,  0,  0, 13, 13, 10,  8,  8,  5,  3,  0,  3},// h11	
-		                                 {9,  0,  0,  0, 13, 13, 10,  8,  8,  5,  3,  3,  0}};// h12	
+                                     {2,  0,  0,  0,  0,  3,  3,  0,  0,  0,  0,  0,  0},// h4
+                                     {5,  0,  0,  0,  3,  0,  3,  0,  0,  0,  0,  0,  0},// h5
+                                     {5,  0,  0,  0,  3,  3,  0,  2,  0,  0,  0,  0,  0},// h6
+                                     {7,  0,  0,  0,  0,  0,  2,  0,  3,  3,  0,  0,  0},// h7
+                                     {4,  0,  0,  0,  0,  0,  0,  3,  0,  3,  0,  0,  0},// h8
+                                     {7,  0,  0,  0,  0,  0,  0,  3,  3,  0,  2,  0,  0},// h9
+                                     {9,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  3,  3},// h10
+		                                 {6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  3},// h11	
+		                                 {9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  3,  0}};// h12	
 
 // Propagation time from h0 to k			
                                  // h0  h1  h2  h3  h4  h5  h6  h7  h8  h9 h10 h11 h12           // Propagation time in units of time
-double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9,  6,  12}; // h0 
-
+double[] timeToPropagateFrom0ToK = {0,  2,  2,  2,  3,  3,  3,  4,  4,  4,  5,  5,  5}; // h0 
 			
 // ========================================================================================================================================
 
@@ -103,8 +101,7 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 		
 // =======================================================================================================================================
 
-	// Calculate Tmax	
-		
+	// Calculate Tmax			
 		
 		// Find the fastest host of the network and the minimal processing time per instruction among hosts
 		double minTimePerInstructionHosts; 
@@ -159,8 +156,9 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 			}
 		}		
 		
-      int Tmax = (int)((sumDisk*timeToTransmitBitHosts[0][farestHostVh])+((timeToPropagateFrom0ToK[farestHostVh])*(numberOfTasks-1))+(minTimePerInstructionHosts * sumInstructions)+((numberOfTasks-1)* maxBytesTransferredTasks*timeToTransmitBitHosts[lowerBoundK][upperBoundK-1]));     
-     
+		int maxTimeToTransmitBitHostsInVh=3;
+    int Tmax = (int)((sumDisk*timeToTransmitBitHosts[0][farestHostVh])+((timeToPropagateFrom0ToK[farestHostVh])*(numberOfTasks-1))+(minTimePerInstructionHosts * sumInstructions)+((numberOfTasks-1)* maxBytesTransferredTasks*(maxTimeToTransmitBitHostsInVh))); 
+    
       System.out.println("sumDisk = "  + sumDisk);
       System.out.println("timeToTransmitBitHosts[0][farestHostVh] = " + timeToTransmitBitHosts[0][farestHostVh]); 
       System.out.println("farestHostVh = " + farestHostVh);
@@ -173,27 +171,26 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 
 // =======================================================================================================================================
 
-		try {
-			// define new model
-			IloCplex cplex = new IloCplex();
-				
-			// Defining variable X
-			
-			IloNumVar[][][] x = new IloNumVar[numberOfTasks][][];
-			// loop for each task
-			for (int j = 0; j < numberOfTasks; j++) {
-				x[j] = new IloIntVar[(int) (Tmax + 1)][];
-				// loop for each time slot					
-				for (int t = 0; t <= Tmax; t++) {
-					x[j][t] = new IloIntVar[upperBoundK];
-					// loop for each host
-					for (int k = lowerBoundK; k < upperBoundK; k++) {
-						String label = "x[" + j + "," + t + "," + k + "]";
-						// System.out.println(label);	
-						x[j][t][k] = cplex.numVar(0, 1, label);
+			try {
+				// define new model
+				IloCplex cplex = new IloCplex();
+
+				// Defining variable X
+				IloIntVar[][][] x = new IloIntVar[numberOfTasks][][];
+				// loop for each task
+				for (int j = 0; j < numberOfTasks; j++) {
+					x[j] = new IloIntVar[(int) (Tmax + 1)][];
+					// loop for each time slot					
+					for (int t = 0; t <= Tmax; t++) {
+						x[j][t] = new IloIntVar[upperBoundK];
+						// loop for each host
+						for (int k = lowerBoundK; k < upperBoundK; k++) {
+							String label = "x[" + j + "," + t + "," + k + "]";
+							// System.out.println(label);
+							x[j][t][k] = cplex.intVar(0, 1, label);
+						}
 					}
-				}
-			}	
+				}		
 			
 // ========================================================================================================================================
 
@@ -203,9 +200,9 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 					for (int k = lowerBoundK; k < upperBoundK; k++) {	
 						double transmissionTimejk = diskTasks[numberOfTasks-1]*timeToTransmitBitHosts[0][k];
 						double propagationTimejk = timeToPropagateFrom0ToK[k];
-						double processingTimejk = instructionsTasks[numberOfTasks-1] * timePerInstructionHosts[k];							
+						double processingTimejk = instructionsTasks[numberOfTasks-1] * timePerInstructionHosts[k];	
 						double sumTTransmissionPropagationProcessingjk = (t+transmissionTimejk+propagationTimejk+processingTimejk);			
-				
+												
 						Cmax.addTerm(x[numberOfTasks-1][t][k], (int) sumTTransmissionPropagationProcessingjk);
 					}
 				}
@@ -340,7 +337,7 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 				//  System.out.println("expressionD5= " + expressionD5);
 			}	
 		  
-// ---------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------
 			
 			// Defining expression D6
 			// For all...	
@@ -356,62 +353,46 @@ double[] timeToPropagateFrom0ToK = {0,  2,  5,  8,  2,  5,  8,  10,  4,  7,  9, 
 				// Add the expression D6 to model
 				cplex.addLe(expressionD6, diskHosts[k]);
 				//  System.out.println("expressionD6= " + expressionD6);
-			}  
-		  
-// ========================================= Relaxation =======================================================================================
-		
-		// IloNumVar x = cplex.numVar(0.0, 1.0);
-		// cplex.add(cplex.conversion(x, IloNumVarType.Int));
-		
-		// To modify the model, add the conversion object to the model
-		//cplex.add(cplex.conversion(x, IloNumVarType.Float));		
-		
-//		// loop for each task
-//		for (int j = 0; j < numberOfTasks; j++) {			
-//			// loop for each time slot					
-//			for (int t = 0; t <= Tmax; t++) {			
-//				// loop for each host
-//				for (int k = lowerBoundK; k < upperBoundK; k++) {
-//					cplex.add(cplex.conversion(x[j][t][k], IloNumVarType.Float));
-//				}
-//			}
-//		}			
+			}  		
 
 // ========================================= Solve model =======================================================================================
 
-		 cplex.exportModel("resultScheduling.lp"); // Imprime en un archivo todo el modelo de optimizacion columna a columna
+		cplex.exportModel("resultScheduling.lp"); // Imprime en un archivo todo el modelo de optimizacion columna a columna
 
-			FileWriter salida = new FileWriter("resultScheduling.txt");
-			PrintWriter escribirSalida = new PrintWriter(salida); // Inicializar
-			
-			if (cplex.solve()) {
-				escribirSalida.println("\nSolution status = " + cplex.getStatus());
-				System.out.println("\nSolution status = " + cplex.getStatus());
-				escribirSalida.println("\nSolution objective = " + cplex.getObjValue() + "\n");
-				System.out.println("\nSolution objective = " + cplex.getObjValue() + "\n");
+		FileWriter salida = new FileWriter("resultScheduling.txt");
+		PrintWriter escribirSalida = new PrintWriter(salida); // Inicializar
+		
+	  cplex.setParam(IloCplex.Param.RootAlgorithm,IloCplex.Algorithm.Auto);
+		//cplex.setParam(IloCplex.Param.RootAlgorithm,IloCplex.Algorithm.Barrier);
+    //cplex.setParam(IloCplex.Param.Barrier.Algorithm,3);
+		
+		if (cplex.solve()) {
+			escribirSalida.println("\nSolution status = " + cplex.getStatus());
+			System.out.println("\nSolution status = " + cplex.getStatus());
+			escribirSalida.println("\nSolution objective = " + cplex.getObjValue() + "\n");
+			System.out.println("\nSolution objective = " + cplex.getObjValue() + "\n");
 
-				for (int j = 0; j < numberOfTasks; j++) {
-					for (int t = 0; t <= Tmax; t++) {
-						for (int k = lowerBoundK; k < upperBoundK; k++) {	
-							
-							if ((cplex.getValue(x[j][t][k])) == 1.0) {
-							//if ((cplex.getValue(x[j][t][k])) >= 10e-6) {
-								escribirSalida.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));										
-								System.out.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));										
-							}
+			for (int j = 0; j < numberOfTasks; j++) {
+				for (int t = 0; t <= Tmax; t++) {
+					for (int k = lowerBoundK; k < upperBoundK; k++) {
+						//System.out.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));					
+						if ((cplex.getValue(x[j][t][k])) >= 1) {
+						//if ((cplex.getValue(x[j][t][k])) >= 1) {
+							escribirSalida.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));										
+							System.out.println("Salida x[j][t][k] = " + x[j][t][k] + " = " + cplex.getValue(x[j][t][k]));	
 						}
 					}
 				}
-				
-				System.out.println("Printout");				
 			}
-			else {
-				escribirSalida.println("problem not solved");
-				System.out.println("problem not solved");
-			}
-			salida.close();
-			cplex.end();		
-	}
+			System.out.println("Printout");
+		}
+		else {
+			escribirSalida.println("problem not solved");
+			System.out.println("problem not solved");
+		}
+		salida.close();
+		cplex.end();		
+}
 
 // =============================== Concert exception ======================================================================================
 
